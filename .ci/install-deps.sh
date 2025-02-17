@@ -59,6 +59,7 @@ if ! pkg-config tss2-sys; then
   if [ "${TPM2_TSS_FAPI}" != "true" ]; then
     extra_configure_flags="--disable-fapi"
   fi
+  autoreconf -i
   ./bootstrap
   ./configure --sysconfdir=/etc ${extra_configure_flags} CFLAGS=-g
   make -j4
