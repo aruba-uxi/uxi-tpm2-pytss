@@ -22,10 +22,10 @@ jobs:
       run: |
         echo "GITHUB_REF=${GITHUB_REF}"
         echo "Extracted tag=${GITHUB_REF#refs/tags/}"
-        grep '__version__' src/tpm2_pytss/internal/__init__.py
+        grep "__version__" src/tpm2_pytss/internal/__init__.py
     
     - name: Check tag against package version
-      run: grep '__version__' src/tpm2_pytss/internal/__init__.py | grep -q "'${GITHUB_REF#refs/tags/}'"
+      run: grep "__version__" src/tpm2_pytss/internal/__init__.py | grep -q "'${GITHUB_REF#refs/tags/}'"
 
     - name: Install Dependencies
       env:
