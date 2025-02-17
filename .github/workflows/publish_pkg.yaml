@@ -47,5 +47,5 @@ jobs:
       run: twine upload dist/*
       env:
         TWINE_REPOSITORY_URL: https://pypi.fury.io/aruba-uxi/
-        TWINE_USERNAME: ${{ secrets.FURY_AUTH }}
+        TWINE_USERNAME: ${{ secrets.FURY_AUTH_PUSH }}
         TWINE_PASSWORD:
