@@ -7,7 +7,7 @@ jobs:
     if: startsWith(github.event.ref, 'refs/tags')
     
     name: Deploy Python package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     
     steps:
     - name: Checkout Repository
