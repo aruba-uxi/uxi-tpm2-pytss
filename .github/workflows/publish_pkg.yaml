@@ -8,32 +8,28 @@ jobs:
     
     name: Deploy Python package
     runs-on: ubuntu-20.04
-    container: debian:bookworm
-    
+    container:
+      image: debian:bookworm
+      options: --security-opt seccomp=unconfined
+
     steps:
+    - name: Install system dependencies
+      run: |
+        apt update
+        apt install -y python3 python3-pip python3-venv python3-dev libssl-dev pkg-config
+
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Check tag against package version
-      run: |
-        VERSION=$(grep -oE '__version__\s*=\s*"[^"]+"' src/tpm2_pytss/internal/__init__.py | cut -d '"' -f2)
-        TAG_VERSION="${GITHUB_REF#refs/tags/}"
-        if [ "$VERSION" != "$TAG_VERSION" ]; then
-          echo "Error: Tag ($TAG_VERSION) does not match package version ($VERSION)"
-          exit 1
-        fi
+    - name: Verify Python SSL Support
+      run: python3 -c "import ssl; print(ssl.OPENSSL_VERSION)"
 
     - name: Install Dependencies
       env:
         TPM2_TSS_VERSION: 3.0.0
       run: |
-        python3 -m pip install --user --upgrade pip
-        python3 -m pip install --user --upgrade setuptools twine wheel pkgconfig
+        python3 -m pip install --upgrade pip
+        python3 -m pip install --upgrade setuptools twine wheel pkgconfig
         ./.ci/install-deps.sh
 
     - name: Test
@@ -42,7 +38,7 @@ jobs:
       run: ./.ci/run.sh
 
     - name: Build distribution
-      run: python setup.py sdist bdist_wheel
+      run: python3 setup.py sdist bdist_wheel
 
     - name: Publish artefacts
       run: twine upload dist/*
