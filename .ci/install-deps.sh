@@ -111,11 +111,11 @@ fi
 # Pip version 21.3 was broken with in-pace (-e) installs. Thus use something
 # after it as it was fixed in 21.3.1
 #
-python3 -m pip install --user --upgrade 'pip>21.3'
+python3 -m pip install --user --upgrade 'pip>21.3' --break-system-packages
 
 #
 # Install Python Development Dependencies
 #
-python3 -m pip install --user -e .[dev]
+python3 -m pip install --user -e .[dev] --break-system-packages
 
 exit 0

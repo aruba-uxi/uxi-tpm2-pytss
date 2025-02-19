@@ -28,6 +28,7 @@ jobs:
       env:
         TPM2_TSS_VERSION: 3.0.0
       run: |
+        autoreconf -fi
         python3 -m pip install --upgrade pip --break-system-packages
         python3 -m pip install --upgrade setuptools twine wheel pkgconfig --break-system-packages
         ./.ci/install-deps.sh
