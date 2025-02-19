@@ -9,8 +9,8 @@ export TPM2_TSS_FAPI=${TPM2_TSS_FAPI:-"true"}
 #
 # Get dependencies for building and install tpm2-tss and abrmd projects
 #
-sudo DEBIAN_FRONTEND=noninteractive apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+DEBIAN_FRONTEND=noninteractive apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
     autoconf-archive \
     curl \
     libcmocka0 \
@@ -62,8 +62,8 @@ if ! pkg-config tss2-sys; then
   ./bootstrap
   ./configure --sysconfdir=/etc ${extra_configure_flags} CFLAGS=-g
   make -j4
-  sudo make install
-  sudo ldconfig
+  make install
+  ldconfig
   popd
 fi
 
@@ -80,10 +80,10 @@ if pkg-config --exists tss2-tcti-swtpm; then
     pushd /tmp/libtpms
     ./autogen.sh --prefix=/usr --with-openssl --with-tpm2 --without-tpm1
     make -j$(nproc)
-    sudo make install
+    make install
     popd
     rm -fr /tmp/libtpms
-    sudo ldconfig
+    ldconfig
   fi
 
   # swtpm
@@ -92,7 +92,7 @@ if pkg-config --exists tss2-tcti-swtpm; then
     pushd /tmp/swtpm
     ./autogen.sh --prefix=/usr
     make -j$(nproc)
-    sudo make install
+    make install
     popd
     rm -fr /tmp/swtpm
   fi
@@ -102,7 +102,7 @@ else
   git -C /tmp clone --depth=1 https://github.com/williamcroberts/ibmswtpm2.git -b fix-rc-exits
   pushd /tmp/ibmswtpm2/src
   make -j$(nproc)
-  sudo cp tpm_server /usr/local/bin
+  cp tpm_server /usr/local/bin
   popd
   rm -fr /tmp/ibmswtpm2
 fi
