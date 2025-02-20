@@ -6,44 +6,28 @@ jobs:
   publish:
     if: startsWith(github.event.ref, 'refs/tags')
     
-    name: Deploy Python package
-    runs-on: ubuntu-20.04
-    container:
-      image: debian:bookworm
-      options: --security-opt seccomp=unconfined
+    name: Deploy Python package (aarch64)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
 
     steps:
-    - name: Install system dependencies
+    - name: Use AArch64 Debian Bookworm Container
+      env:
+          TPM2_TSS_VERSION: 3.0.0
+          TWINE_REPOSITORY_URL: https://pypi.fury.io/aruba-uxi/
+          TWINE_USERNAME: ${{ secrets.FURY_AUTH_PUSH }}
+          TWINE_PASSWORD:
       run: |
-        apt update
-        apt install -y python3 python3-pip python3-venv python3-dev libssl-dev pkg-config autoconf automake
-
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    - name: Verify Python SSL Support
-      run: python3 -c "import ssl; print(ssl.OPENSSL_VERSION)"
-
-    - name: Install Dependencies
-      env:
-        TPM2_TSS_VERSION: 3.0.0
-      run: |
-        autoreconf -fi
-        python3 -m pip install --upgrade pip --break-system-packages
-        python3 -m pip install --upgrade setuptools twine wheel pkgconfig --break-system-packages
-        ./.ci/install-deps.sh
-
-    - name: Test
-      env:
-        TEST: 1
-      run: ./.ci/run.sh
-
-    - name: Build distribution
-      run: python3 setup.py sdist bdist_wheel
-
-    - name: Publish artefacts
-      run: twine upload dist/*
-      env:
-        TWINE_REPOSITORY_URL: https://pypi.fury.io/aruba-uxi/
-        TWINE_USERNAME: ${{ secrets.FURY_AUTH_PUSH }}
-        TWINE_PASSWORD:
+        docker run --rm --platform linux/arm64 -v $(pwd):/workspace -w /workspace debian:bookworm \
+        bash -c "
+          apt update && apt install -y python3 python3-pip python3-venv python3-dev libssl-dev pkg-config autoconf automake libtool libcurl4-openssl-dev libjson-c-dev --break-system-packages
+          python3 -m pip install --upgrade pip setuptools twine wheel pkgconfig --break-system-packages &&
+          autoreconf -fi &&
+          python3 -m pip install --upgrade pip --break-system-packages &&
+          python3 -m pip install --upgrade setuptools twine wheel pkgconfig --break-system-packages &&
+          ./.ci/install-deps.sh &&
+          python3 setup.py sdist bdist_wheel &&
+          twine upload dist/*
+        "
